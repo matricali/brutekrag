@@ -23,6 +23,17 @@ SOFTWARE.
 """
 import sys
 import paramiko
+from paramiko import AutoAddPolicy
+
+banner = ('''\033[92m      _                _       _
+     | |              | |     | |
+     | |__  _ __ _   _| |_ ___| | ___ __ __ _  __ _
+     | '_ \| '__| | | | __/ _ \ |/ / '__/ _` |/ _` |
+     | |_) | |  | |_| | ||  __/   <| | | (_| | (_| |
+     |_.__/|_|   \__,_|\__\___|_|\_\_|  \__,_|\__, |
+             \033[0m\033[1mOpenSSH Brute forcer tool 0.1\033[92m     __/ |
+          \033[0m(c) Copyright 2014 Jorge Matricali\033[92m  |___/\033[0m
+          \n''')
 
 
 class brutekrag:
@@ -36,7 +47,7 @@ class brutekrag:
         try:
             client = paramiko.SSHClient()
             client.load_system_host_keys()
-            client.set_missing_host_key_policy(paramiko.WarningPolicy())
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
             client.connect(
                 self.host,
