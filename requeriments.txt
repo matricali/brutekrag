@@ -1,1 +1,2 @@
-paramiko>=1.5.2
+paramiko==1.5.2
+argparse==1.2.2
