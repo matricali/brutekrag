@@ -89,6 +89,10 @@ if __name__ == '__main__':
     btkg = brutekrag(args.hostname, args.port)
     with open(args.dictionary, 'r') as dictionary:
         for password in dictionary:
-            if btkg.connect(args.username, password.strip()) == 0:
-                break
+            try:
+                if btkg.connect(args.username, password.strip()) == 0:
+                    break
+            except paramiko.ssh_exception.SSHException as error:
+                print 'An error occured:', error.message
+                continue
         dictionary.close()
