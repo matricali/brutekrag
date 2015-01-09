@@ -49,7 +49,11 @@ class brutekrag:
         except paramiko.AuthenticationException:
             print '%s password for user %s failed' % (password, username)
             client.close()
-            return -1
+            return 255
+
+        except paramiko.ssh_exception.SSHException as error:
+            print 'An error occured:', error.message
+            return 255
 
         finally:
             client.close()
