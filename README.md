@@ -9,3 +9,14 @@ _brute krag_ means "brute force" in afrikáans
 
 ## Requeriments
 * Python 2.7
+
+## Installation
+It can be easily installed using _pip_
+
+```bash
+pip install brutekrag
+```
+Then you can do
+```bash
+brutekrag --help
+```
