@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='brutekrag',
     packages=['brutekrag'],
-    version='0.1.8',
+    version='0.1.9',
     description='brute force OpenSSH using dictionary attack',
     author='Jorge Matricali',
     author_email='jorgematricali@gmail.com',
@@ -20,6 +20,6 @@ setup(
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7'
     ),
-    install_requires=['paramiko==1.8.0',
+    install_requires=['paramiko>=1.8.0',
                       'argparse>=1.2.2']
 )
