@@ -1,7 +1,7 @@
 """
 MIT License
 
-Copyright (c) 2014 Jorge Matricali
+Copyright (c) 2014-2017 Jorge Matricali
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,14 +24,16 @@ SOFTWARE.
 import sys
 import paramiko
 from paramiko import AutoAddPolicy
+import socket
 
 
 class brutekrag:
-    def __init__(self, host, port=22):
+    def __init__(self, host, port=22, timeout=1):
         self.host = host
         self.port = port
         self.list_users = []
         self.list_passwords = []
+        self.timeout = timeout
 
     def connect(self, username, password):
         try:
@@ -43,20 +45,27 @@ class brutekrag:
                 self.host,
                 port=self.port,
                 username=username,
-                password=password
+                password=password,
+                timeout=self.timeout
             )
 
         except paramiko.AuthenticationException:
-            print '%s password for user %s failed' % (password, username)
+            print '[%s:%d] Password %s for user %s failed' % (self.host, self.port, password, username)
             client.close()
+            return 255
+        except (paramiko.ssh_exception.BadHostKeyException) as error:
+            print '[%s:%d] BadHostKeyException: %s' % (self.host, self.port, error.message)
+            return 255
+        except (paramiko.ssh_exception.SSHException, socket.error) as se:
+            print '[%s:%d] Connection error: %s' % (self.host, self.port, se.message)
             return 255
 
         except paramiko.ssh_exception.SSHException as error:
-            print 'An error occured:', error.message
+            print '[%s:%d] An error occured: %s' % (self.host, self.port, error.message)
             return 255
 
         finally:
             client.close()
 
-        print 'The password for user \033[1m%s\033[0m is \033[1m%s\033[0m' % (username, password)
+        print '[%s:%d] The password for user \033[1m%s\033[0m is \033[1m%s\033[0m' % (self.host, self.port, username, password)
         return 0
