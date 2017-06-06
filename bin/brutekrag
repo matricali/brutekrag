@@ -31,11 +31,15 @@ from argparse import RawTextHelpFormatter
 import threading
 import signal
 import time
+from tqdm import tqdm
 
 exit_flag = False
 threads = []
 matrix = []
+processed = 0
+total = 0
 compromisedHostsBuffer = None
+args = []
 
 
 def teardown(signal=0):
@@ -56,8 +60,27 @@ def signal_handler(signal, frame):
     teardown(0)
 
 
-def print_error(message, *args):
-    print('\033[91m\033[1mERROR:\033[0m %s' % message, *args, file=sys.stderr)
+def print_error(message, *arguments):
+    if args.progress:
+        return
+    print('\033[91m%s\033[0m' % message, *arguments, file=(sys.stderr, None)[args.progress])
+
+
+def print_debug(message, *arguments):
+    if args.progress:
+        return
+    print('\033[37m%s\033[0m' % message, *arguments, file=(sys.stderr, None)[args.progress])
+
+
+def update_progress(count, total, suffix=''):
+    bar_len = 60
+    filled_len = int(round(bar_len * count / float(total)))
+
+    percents = round(100.0 * count / float(total), 1)
+    bar = '=' * filled_len + '-' * (bar_len - filled_len)
+
+    sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', suffix + ' '*10))
+    sys.stdout.flush()  # As suggested by Rom Ruben
 
 
 class brutekragThread(threading.Thread):
@@ -68,6 +91,7 @@ class brutekragThread(threading.Thread):
         self._running = True
 
     def run(self):
+        global processed
         self.log('Starting thread...')
         while(matrix and self._running):
             try:
@@ -81,8 +105,15 @@ class brutekragThread(threading.Thread):
                         # This execution aims to a single user, so all the job is done. :D
                         teardown(0)
                         break
+                else:
+                    if args.progress:
+                        last = '%s:%d %s:%s' % (loginAttempt[0], args.port, loginAttempt[1], loginAttempt[2])
+                        update_progress(processed+1, len(matrix), last)
+                    else:
+                        print_debug('[%s:%d] password %s for user %s is not valid.' % (loginAttempt[0], args.port, loginAttempt[2], loginAttempt[1]))
             except Exception as ex:
                 print_error(str(ex))
+            processed += 1
         self.stop()
 
     def stop(self):
@@ -119,6 +150,7 @@ parser.add_argument('-P', '--password', type=str, help='Single password brutefor
 parser.add_argument('--timeout', type=int, help='Connection timeout (in seconds, 1 default).', default=1)
 parser.add_argument('--threads', type=int, default=1, help='Total number of threads to use (default 1).')
 parser.add_argument('-o', '--output', type=str, default=None, help='Output file for compromised hosts.')
+parser.add_argument('--progress', action='store_true', help='Progress bar')
 
 try:
     args = parser.parse_args()
@@ -213,6 +245,7 @@ else:
             for target in targets:
                 matrix.append([target.strip(), username.strip(), password.strip('\n')])
 
+total = len(matrix)
 matrix.reverse()
 print('%d total loggin attemps.' % len(matrix))
 print('Starting %d threads...\n' % args.threads)

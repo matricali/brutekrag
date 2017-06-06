@@ -36,14 +36,6 @@ class brutekrag:
         self.list_passwords = []
         self.timeout = timeout
 
-    def print_error(self, message, *args):
-        print('\033[91m%s\033[0m' % message, *args, file=sys.stderr)
-
-
-    def print_debug(self, message, *args):
-        print('\033[37m%s\033[0m' % message, *args, file=sys.stderr)
-
-
     def connect(self, username, password):
         try:
             client = paramiko.SSHClient()
@@ -59,19 +51,18 @@ class brutekrag:
             )
 
         except paramiko.AuthenticationException:
-            self.print_debug('[%s:%d] Password %s for user %s failed' % (self.host, self.port, password, username))
             return False
 
         except (paramiko.ssh_exception.BadHostKeyException) as error:
-            self.print_error('[%s:%d] BadHostKeyException: %s' % (self.host, self.port, error.message))
+            raise Exception('[%s:%d] BadHostKeyException: %s' % (self.host, self.port, error.message))
             return False
 
         except (paramiko.ssh_exception.SSHException, socket.error) as se:
-            self.print_error('[%s:%d] Connection error: %s' % (self.host, self.port, str(se)))
+            raise Exception('[%s:%d] Connection error: %s' % (self.host, self.port, str(se)))
             return False
 
         except paramiko.ssh_exception.SSHException as error:
-            self.print_error('[%s:%d] An error occured: %s' % (self.host, self.port, error.message))
+            raise Exception('[%s:%d] An error occured: %s' % (self.host, self.port, error.message))
             return False
 
         finally:
