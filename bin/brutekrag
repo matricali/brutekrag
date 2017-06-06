@@ -80,7 +80,7 @@ def update_progress(count, total, suffix=''):
     bar = '=' * filled_len + '-' * (bar_len - filled_len)
 
     sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', suffix + ' '*10))
-    sys.stdout.flush()  # As suggested by Rom Ruben
+    sys.stdout.flush()
 
 
 class brutekragThread(threading.Thread):
@@ -101,6 +101,7 @@ class brutekragThread(threading.Thread):
                     print('\033[37m[%s:%d]\033[0m The password for user \033[1m%s\033[0m is \033[92m\033[1m%s\033[0m' % (loginAttempt[0], args.port, loginAttempt[1], loginAttempt[2]))
                     if args.output is not None:
                         print('%s:%d %s:%s' % (loginAttempt[0], args.port, loginAttempt[1], loginAttempt[2]), file=compromisedHostsBuffer)
+                        compromisedHostsBuffer.flush()
                     if args.user is not None:
                         # This execution aims to a single user, so all the job is done. :D
                         teardown(0)
@@ -108,7 +109,7 @@ class brutekragThread(threading.Thread):
                 else:
                     if args.progress:
                         last = '%s:%d %s:%s' % (loginAttempt[0], args.port, loginAttempt[1], loginAttempt[2])
-                        update_progress(processed+1, len(matrix), last)
+                        update_progress(processed+1, total, last)
                     else:
                         print_debug('[%s:%d] password %s for user %s is not valid.' % (loginAttempt[0], args.port, loginAttempt[2], loginAttempt[1]))
             except Exception as ex:
