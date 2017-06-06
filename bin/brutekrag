@@ -115,7 +115,10 @@ elif args.single is None:
     sys.exit(255)
 
 
-
+'''
+BUILD MATRIX
+'''
+matrix = []
 if args.single is not None:
     # Single file
     dictionary = []
@@ -129,11 +132,8 @@ if args.single is not None:
         username, password = line.split(args.separator)
         password = password.strip('$BLANKPASS')
         for target in targets:
-            try:
-                btkg = brutekrag.brutekrag(target.strip(), args.port, timeout=args.timeout)
-                btkg.connect(username.strip(), password.strip('\n'))
-            except Exception as ex:
-                print_error(str(ex))
+            matrix.append([target.strip(), username.strip(), password.strip('\n')])
+
 else:
     # Separated  1n1 username passwords
     print('')
@@ -141,10 +141,16 @@ else:
         for password in passwords:
             password = password.strip('$BLANKPASS')
             for target in targets:
-                try:
-                    btkg = brutekrag.brutekrag(target.strip(), args.port, timeout=args.timeout)
-                    btkg.connect(username.strip(), password.strip('\n'))
-                except Exception as ex:
-                    print_error(str(ex))
+                matrix.append([target.strip(), username.strip(), password.strip('\n')])
+
+
+print('%d total loggin attemps.\n' % len(matrix))
+for loginAttempt in matrix:
+    try:
+        btkg = brutekrag.brutekrag(loginAttempt[0], args.port, timeout=args.timeout)
+        btkg.connect(loginAttempt[1], loginAttempt[2])
+    except Exception as ex:
+        print_error(str(ex))
+
 
 print('Bye...')
