@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+from __future__ import print_function
 import sys
 import paramiko
 from paramiko import AutoAddPolicy
@@ -34,6 +35,14 @@ class brutekrag:
         self.list_users = []
         self.list_passwords = []
         self.timeout = timeout
+
+    def print_error(self, message, *args):
+        print('\033[91m%s\033[0m' % message, *args, file=sys.stderr)
+
+
+    def print_debug(self, message, *args):
+        print('\033[37m%s\033[0m' % message, *args, file=sys.stderr)
+
 
     def connect(self, username, password):
         try:
@@ -50,22 +59,22 @@ class brutekrag:
             )
 
         except paramiko.AuthenticationException:
-            print '[%s:%d] Password %s for user %s failed' % (self.host, self.port, password, username)
+            self.print_debug('[%s:%d] Password %s for user %s failed' % (self.host, self.port, password, username))
             client.close()
             return 255
         except (paramiko.ssh_exception.BadHostKeyException) as error:
-            print '[%s:%d] BadHostKeyException: %s' % (self.host, self.port, error.message)
+            self.print_error('[%s:%d] BadHostKeyException: %s' % (self.host, self.port, error.message))
             return 255
         except (paramiko.ssh_exception.SSHException, socket.error) as se:
-            print '[%s:%d] Connection error: %s' % (self.host, self.port, se.message)
+            self.print_error('[%s:%d] Connection error: %s' % (self.host, self.port, str(se)))
             return 255
 
         except paramiko.ssh_exception.SSHException as error:
-            print '[%s:%d] An error occured: %s' % (self.host, self.port, error.message)
+            self.print_error('[%s:%d] An error occured: %s' % (self.host, self.port, error.message))
             return 255
 
         finally:
             client.close()
 
-        print '[%s:%d] The password for user \033[1m%s\033[0m is \033[1m%s\033[0m' % (self.host, self.port, username, password)
+        print('\033[37m[%s:%d]\033[0m The password for user \033[1m%s\033[0m is \033[37m\033[1m%s\033[0m' % (self.host, self.port, username, password))
         return 0

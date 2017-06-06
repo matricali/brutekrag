@@ -23,14 +23,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from __future__ import print_function
 import sys
 import brutekrag
 import argparse
 from argparse import RawTextHelpFormatter
 
 
-def print_error(message):
-    print '\033[91m\033[1mERROR:\033[0m %s' % message
+def print_error(message, *args):
+    print('\033[91m\033[1mERROR:\033[0m %s' % message, *args, file=sys.stderr)
 
 
 banner = ('''\033[92m      _                _       _
@@ -39,7 +40,7 @@ banner = ('''\033[92m      _                _       _
      | '_ \| '__| | | | __/ _ \ |/ / '__/ _` |/ _` |
      | |_) | |  | |_| | ||  __/   <| | | (_| | (_| |
      |_.__/|_|   \__,_|\__\___|_|\_\_|  \__,_|\__, |
-            \033[0m\033[1mOpenSSH Brute forcer tool 0.2.0\033[92m    __/ |
+            \033[0m\033[1mOpenSSH Brute force tool 0.2.1\033[92m     __/ |
           \033[0m(c) Copyright 2014 Jorge Matricali\033[92m  |___/\033[0m
           \n''')
 
@@ -63,7 +64,7 @@ except TypeError:
     parser.print_help()
     parser.exit()
 
-print banner
+print(banner)
 
 '''
 PARSE TARGETS
@@ -76,7 +77,7 @@ elif args.targets is not None:
         for target in targetsFile:
             targets.append(target)
         targetsFile.close()
-    print 'Loaded %d targets from %s' % (len(targets), args.targets)
+    print('Loaded %d targets from %s' % (len(targets), args.targets))
 else:
     print_error('You must specify al most one target.')
     sys.exit(255)
@@ -92,7 +93,7 @@ elif args.users is not None:
         for user in usersFile:
             users.append(user)
         usersFile.close()
-    print 'Loaded %d users from %s' % (len(users), args.users)
+    print('Loaded %d users from %s' % (len(users), args.users))
 elif args.single is None:
     print_error('You must specify al most one username.')
     sys.exit(255)
@@ -108,7 +109,7 @@ elif args.passwords is not None:
         for password in passwordsFile:
             passwords.append(password)
         passwordsFile.close()
-    print 'Loaded %d passwords from %s\n' % (len(passwords), args.passwords)
+    print('Loaded %d passwords from %s\n' % (len(passwords), args.passwords))
 elif args.single is None:
     print_error('You must specify a password dictionary.')
     sys.exit(255)
@@ -122,7 +123,7 @@ if args.single is not None:
         for line in dictionaryFile:
             dictionary.append(line)
         dictionaryFile.close()
-    print 'Loaded %d passwords from %s\n' % (len(dictionary), args.single)
+    print('Loaded %d passwords from %s\n' % (len(dictionary), args.single))
 
     for line in dictionary:
         username, password = line.split(args.separator)
@@ -135,7 +136,7 @@ if args.single is not None:
                 print_error(str(ex))
 else:
     # Separated  1n1 username passwords
-    print ''
+    print('')
     for username in users:
         for password in passwords:
             password = password.strip('$BLANKPASS')
@@ -146,4 +147,4 @@ else:
                 except Exception as ex:
                     print_error(str(ex))
 
-print 'Bye...'
+print('Bye...')

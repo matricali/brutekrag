@@ -2,8 +2,9 @@
 [![PyPI](https://img.shields.io/pypi/dm/brutekrag.svg)](https://pypi.python.org/pypi/brutekrag)
 
 # brutekrag
-SSH brute force using dictionary attack. Written in _Python_.
-_brute krag_ means "brute force" in afrikáans
+Penetration tests on SSH servers using brute force or dictionary attacks. Written in _Python_.
+
+> _brute krag_ means "brute force" in afrikáans
 
 ## Disclaimer
 >This tool is for ethical testing purpose only.   
@@ -12,6 +13,7 @@ _brute krag_ means "brute force" in afrikáans
 
 ## Requeriments
 * Python 2.7
+* see [requeriments.txt](requeriments.txt)
 
 ## Installation
 It can be easily installed using _pip_
@@ -33,7 +35,7 @@ usage: brutekrag [-h] [-t TARGET] [-T TARGETS] [-pF PASSWORDS] [-uF USERS]
      | '_ \| '__| | | | __/ _ \ |/ / '__/ _` |/ _` |
      | |_) | |  | |_| | ||  __/   <| | | (_| | (_| |
      |_.__/|_|   \__,_|\__\___|_|\_\_|  \__,_|\__, |
-            OpenSSH Brute forcer tool 0.2.0    __/ |
+            OpenSSH Brute force tool 0.2.1     __/ |
           (c) Copyright 2014 Jorge Matricali  |___/
 
 
