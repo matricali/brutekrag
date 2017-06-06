@@ -27,7 +27,8 @@ $ brutekrag --help
 
 usage: brutekrag [-h] [-t TARGET] [-T TARGETS] [-pF PASSWORDS] [-uF USERS]
                  [-sF SINGLE] [--separator SEPARATOR] [-p PORT] [-u USER]
-                 [-P PASSWORD] [--timeout TIMEOUT]
+                 [-P PASSWORD] [--timeout TIMEOUT] [--threads THREADS]
+                 [-o OUTPUT]
 
       _                _       _
      | |              | |     | |
@@ -35,7 +36,7 @@ usage: brutekrag [-h] [-t TARGET] [-T TARGETS] [-pF PASSWORDS] [-uF USERS]
      | '_ \| '__| | | | __/ _ \ |/ / '__/ _` |/ _` |
      | |_) | |  | |_| | ||  __/   <| | | (_| | (_| |
      |_.__/|_|   \__,_|\__\___|_|\_\_|  \__,_|\__, |
-            OpenSSH Brute force tool 0.2.1     __/ |
+            OpenSSH Brute force tool 0.3.0     __/ |
           (c) Copyright 2014 Jorge Matricali  |___/
 
 
@@ -58,6 +59,9 @@ optional arguments:
   -P PASSWORD, --password PASSWORD
                         Single password bruteforce.
   --timeout TIMEOUT     Connection timeout (in seconds, 1 default).
+  --threads THREADS     Total number of threads to use (default 1).
+  -o OUTPUT, --output OUTPUT
+                        Output file for compromised hosts.
 ```
 
 ## Example usages

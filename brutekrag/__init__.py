@@ -60,21 +60,21 @@ class brutekrag:
 
         except paramiko.AuthenticationException:
             self.print_debug('[%s:%d] Password %s for user %s failed' % (self.host, self.port, password, username))
-            client.close()
-            return 255
+            return False
+
         except (paramiko.ssh_exception.BadHostKeyException) as error:
             self.print_error('[%s:%d] BadHostKeyException: %s' % (self.host, self.port, error.message))
-            return 255
+            return False
+
         except (paramiko.ssh_exception.SSHException, socket.error) as se:
             self.print_error('[%s:%d] Connection error: %s' % (self.host, self.port, str(se)))
-            return 255
+            return False
 
         except paramiko.ssh_exception.SSHException as error:
             self.print_error('[%s:%d] An error occured: %s' % (self.host, self.port, error.message))
-            return 255
+            return False
 
         finally:
             client.close()
 
-        print('\033[37m[%s:%d]\033[0m The password for user \033[1m%s\033[0m is \033[37m\033[1m%s\033[0m' % (self.host, self.port, username, password))
-        return 0
+        return True
