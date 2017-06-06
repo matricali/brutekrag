@@ -2,7 +2,7 @@
 """
 MIT License
 
-Copyright (c) 2014 Jorge Matricali
+Copyright (c) 2014-2017 Jorge Matricali
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,9 +23,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import sys
 import brutekrag
 import argparse
 from argparse import RawTextHelpFormatter
+
+
+def print_error(message):
+    print '\033[91m\033[1mERROR:\033[0m %s' % message
 
 
 banner = ('''\033[92m      _                _       _
@@ -34,17 +39,23 @@ banner = ('''\033[92m      _                _       _
      | '_ \| '__| | | | __/ _ \ |/ / '__/ _` |/ _` |
      | |_) | |  | |_| | ||  __/   <| | | (_| | (_| |
      |_.__/|_|   \__,_|\__\___|_|\_\_|  \__,_|\__, |
-            \033[0m\033[1mOpenSSH Brute forcer tool 0.1.9\033[92m    __/ |
+            \033[0m\033[1mOpenSSH Brute forcer tool 0.2.0\033[92m    __/ |
           \033[0m(c) Copyright 2014 Jorge Matricali\033[92m  |___/\033[0m
           \n''')
 
 parser = argparse.ArgumentParser(description=banner,
                                  formatter_class=RawTextHelpFormatter)
 
-parser.add_argument('hostname', type=str, help='Target hostname or IPv4')
-parser.add_argument('username', type=str, help='Target username')
-parser.add_argument('dictionary', type=str, help='Path to password dictionary file. One password per line.')
-parser.add_argument('-p', '--port', type=int, help='Target port (default 22)', default=22)
+parser.add_argument('-t', '--target', type=str, help='Target hostname or IPv4.')
+parser.add_argument('-T', '--targets', type=str, help='Targets file that containas one hostname or IPv4 per line.')
+parser.add_argument('-pF', '--passwords', type=str, help='Path to password dictionary file. One password per line.')
+parser.add_argument('-uF', '--users', type=str, help='Path to users list file. One user per line.')
+parser.add_argument('-sF', '--single', type=str, help='Path to a file that contains a combination of both username and password. One combination per line, separated by space character by default.')
+parser.add_argument('--separator', type=str, help='Custom username/password separator. It\'s should be used in conjunction with -sF.', default=' ')
+parser.add_argument('-p', '--port', type=int, help='Target port (default 22).', default=22)
+parser.add_argument('-u', '--user', type=str, help='Single user bruteforce.')
+parser.add_argument('-P', '--password', type=str, help='Single password bruteforce.')
+parser.add_argument('--timeout', type=int, help='Connection timeout (in seconds, 1 default).', default=1)
 
 try:
     args = parser.parse_args()
@@ -52,9 +63,87 @@ except TypeError:
     parser.print_help()
     parser.exit()
 
-btkg = brutekrag.brutekrag(args.hostname, args.port)
-with open(args.dictionary, 'r') as dictionary:
-    for password in dictionary:
-        if btkg.connect(args.username, password.strip()) == 0:
-            break
-    dictionary.close()
+print banner
+
+'''
+PARSE TARGETS
+'''
+if args.target is not None:
+    targets = [args.target]
+elif args.targets is not None:
+    targets = []
+    with open(args.targets, 'r') as targetsFile:
+        for target in targetsFile:
+            targets.append(target)
+        targetsFile.close()
+    print 'Loaded %d targets from %s' % (len(targets), args.targets)
+else:
+    print_error('You must specify al most one target.')
+    sys.exit(255)
+
+'''
+PARSE USERS
+'''
+if args.user is not None:
+    users = [args.user]
+elif args.users is not None:
+    users = []
+    with open(args.users, 'r') as usersFile:
+        for user in usersFile:
+            users.append(user)
+        usersFile.close()
+    print 'Loaded %d users from %s' % (len(users), args.users)
+elif args.single is None:
+    print_error('You must specify al most one username.')
+    sys.exit(255)
+
+'''
+PARSE PASSWORDS
+'''
+if args.password is not None:
+    passwords = [args.password]
+elif args.passwords is not None:
+    passwords = []
+    with open(args.passwords, 'r') as passwordsFile:
+        for password in passwordsFile:
+            passwords.append(password)
+        passwordsFile.close()
+    print 'Loaded %d passwords from %s\n' % (len(passwords), args.passwords)
+elif args.single is None:
+    print_error('You must specify a password dictionary.')
+    sys.exit(255)
+
+
+
+if args.single is not None:
+    # Single file
+    dictionary = []
+    with open(args.single, 'r') as dictionaryFile:
+        for line in dictionaryFile:
+            dictionary.append(line)
+        dictionaryFile.close()
+    print 'Loaded %d passwords from %s\n' % (len(dictionary), args.single)
+
+    for line in dictionary:
+        username, password = line.split(args.separator)
+        password = password.strip('$BLANKPASS')
+        for target in targets:
+            try:
+                btkg = brutekrag.brutekrag(target.strip(), args.port, timeout=args.timeout)
+                btkg.connect(username.strip(), password.strip('\n'))
+            except Exception as ex:
+                print_error(str(ex))
+else:
+    # Separated  1n1 username passwords
+    print ''
+    for username in users:
+        for password in passwords:
+            password = password.strip('$BLANKPASS')
+            for target in targets:
+                try:
+                    btkg = brutekrag.brutekrag(target.strip(), args.port, timeout=args.timeout)
+                    btkg.connect(username.strip(), password.strip('\n'))
+                except Exception as ex:
+                    print_error(str(ex))
+
+print 'Bye...'
