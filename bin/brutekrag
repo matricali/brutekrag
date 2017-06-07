@@ -110,7 +110,7 @@ class brutekragThread(threading.Thread):
                         break
                 else:
                     if args.progress:
-                        last = '%s:%d %s:%s' % (loginAttempt[0], args.port, loginAttempt[1], loginAttempt[2])
+                        last = '[%d/%d] %s:%d %s:%s' % (processed+1, total, loginAttempt[0], args.port, loginAttempt[1], loginAttempt[2])
                         update_progress(processed+1, total, last)
                     else:
                         print_debug('[%s:%d] password %s for user %s is not valid.' % (loginAttempt[0], args.port, loginAttempt[2], loginAttempt[1]))
