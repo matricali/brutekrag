@@ -39,7 +39,6 @@ matrix = []
 processed = 0
 total = 0
 compromisedHostsBuffer = None
-args = []
 
 
 def teardown(signal=0):
@@ -67,7 +66,7 @@ def print_error(message, *arguments):
 
 
 def print_debug(message, *arguments):
-    if args.progress:
+    if args.progress or not args.verbose:
         return
     print('\033[37m%s\033[0m' % message, *arguments, file=(sys.stderr, None)[args.progress])
 
@@ -89,6 +88,9 @@ class brutekragThread(threading.Thread):
         self._threadID = threadID
         self._name = name
         self._running = True
+        self._verbose = False
+        if 'verbose' in kwargs:
+            self._verbose = bool(kwargs.get('verbose'))
 
     def run(self):
         global processed
@@ -122,7 +124,8 @@ class brutekragThread(threading.Thread):
         self._running = False
 
     def log(self, *args):
-        print(time.ctime(time.time()), self._name, *args)
+        if self._verbose:
+            print(time.ctime(time.time()), self._name, *args)
 
 
 banner = ('''\033[92m      _                _       _
@@ -151,7 +154,8 @@ parser.add_argument('-P', '--password', type=str, help='Single password brutefor
 parser.add_argument('--timeout', type=int, help='Connection timeout (in seconds, 1 default).', default=1)
 parser.add_argument('--threads', type=int, default=1, help='Total number of threads to use (default 1).')
 parser.add_argument('-o', '--output', type=str, default=None, help='Output file for compromised hosts.')
-parser.add_argument('--progress', action='store_true', help='Progress bar')
+parser.add_argument('--progress', action='store_true', help='Progress bar.')
+parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output.')
 
 try:
     args = parser.parse_args()
@@ -253,7 +257,7 @@ print('Starting %d threads...\n' % args.threads)
 
 threads = [None]*args.threads
 for nt in range(args.threads):
-    threads[nt] = brutekragThread(nt+1, 'Thread-%d' % (nt+1))
+    threads[nt] = brutekragThread(nt+1, 'Thread-%d' % (nt+1), verbose=args.verbose)
     threads[nt].daemon = True
     threads[nt].start()
 
