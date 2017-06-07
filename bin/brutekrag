@@ -134,7 +134,7 @@ banner = ('''\033[92m      _                _       _
      | '_ \| '__| | | | __/ _ \ |/ / '__/ _` |/ _` |
      | |_) | |  | |_| | ||  __/   <| | | (_| | (_| |
      |_.__/|_|   \__,_|\__\___|_|\_\_|  \__,_|\__, |
-            \033[0m\033[1mOpenSSH Brute force tool 0.3.0\033[92m     __/ |
+            \033[0m\033[1mOpenSSH Brute force tool 0.3.1\033[92m     __/ |
           \033[0m(c) Copyright 2014 Jorge Matricali\033[92m  |___/\033[0m
           \n''')
 
@@ -156,6 +156,7 @@ parser.add_argument('--threads', type=int, default=1, help='Total number of thre
 parser.add_argument('-o', '--output', type=str, default=None, help='Output file for compromised hosts.')
 parser.add_argument('--progress', action='store_true', help='Progress bar.')
 parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output.')
+parser.add_argument('--version', action='store_true', help='Prints version and banner.')
 
 try:
     args = parser.parse_args()
@@ -164,6 +165,9 @@ except TypeError:
     parser.exit()
 
 print(banner)
+
+if args.version:
+    sys.exit(0)
 
 '''
 PARSE TARGETS

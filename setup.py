@@ -3,13 +3,13 @@ from distutils.core import setup
 setup(
     name='brutekrag',
     packages=['brutekrag'],
-    version='0.3.0',
+    version='0.3.1',
     description='Penetration tests on SSH servers using brute force or dictionary attacks',
     author='Jorge Matricali',
     author_email='jorgematricali@gmail.com',
     license='MIT',
     url='https://github.com/jorge-matricali/brutekrag',
-    download_url='https://github.com/jorge-matricali/brutekrag/archive/v0.3.0.tar.gz',
+    download_url='https://github.com/jorge-matricali/brutekrag/archive/v0.3.1.tar.gz',
     scripts=['bin/brutekrag'],
     keywords=['ssh', 'brute force', 'ethical hacking', 'pentesting', 'dictionary attack', 'penetration test'],
     classifiers=(
