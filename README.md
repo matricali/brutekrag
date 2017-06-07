@@ -28,7 +28,7 @@ $ brutekrag --help
 usage: brutekrag [-h] [-t TARGET] [-T TARGETS] [-pF PASSWORDS] [-uF USERS]
                  [-sF SINGLE] [--separator SEPARATOR] [-p PORT] [-u USER]
                  [-P PASSWORD] [--timeout TIMEOUT] [--threads THREADS]
-                 [-o OUTPUT]
+                 [-o OUTPUT] [--progress] [-v] [--version]
 
       _                _       _
      | |              | |     | |
@@ -36,9 +36,9 @@ usage: brutekrag [-h] [-t TARGET] [-T TARGETS] [-pF PASSWORDS] [-uF USERS]
      | '_ \| '__| | | | __/ _ \ |/ / '__/ _` |/ _` |
      | |_) | |  | |_| | ||  __/   <| | | (_| | (_| |
      |_.__/|_|   \__,_|\__\___|_|\_\_|  \__,_|\__, |
-            OpenSSH Brute force tool 0.3.0     __/ |
+            OpenSSH Brute force tool 0.3.1     __/ |
           (c) Copyright 2014 Jorge Matricali  |___/
-
+          
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -62,6 +62,9 @@ optional arguments:
   --threads THREADS     Total number of threads to use (default 1).
   -o OUTPUT, --output OUTPUT
                         Output file for compromised hosts.
+  --progress            Progress bar.
+  -v, --verbose         Verbose output.
+  --version             Prints version and banner.
 ```
 
 ## Example usages
