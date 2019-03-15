@@ -38,7 +38,7 @@ usage: brutekrag [-h] [-t TARGET] [-T TARGETS] [-pF PASSWORDS] [-uF USERS]
      |_.__/|_|   \__,_|\__\___|_|\_\_|  \__,_|\__, |
             OpenSSH Brute force tool 0.3.1     __/ |
           (c) Copyright 2014 Jorge Matricali  |___/
-          
+
 
 optional arguments:
   -h, --help            show this help message and exit
