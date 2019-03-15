@@ -1,2 +1,3 @@
 paramiko>=1.8.0
 argparse>=1.2.2
+tqdm>=4.0.0

@@ -11,9 +11,9 @@ Penetration tests on SSH servers using brute force or dictionary attacks. Writte
 >brutekrag and its owners can't be held responsible for misuse by users.   
 >Users have to act as permitted by local law rules.
 
-## Requeriments
+## Requirements
 * Python 2.7
-* see [requeriments.txt](requeriments.txt)
+* see [requirements.txt](requirements.txt)
 
 ## Installation
 It can be easily installed using _pip_
@@ -38,7 +38,7 @@ usage: brutekrag [-h] [-t TARGET] [-T TARGETS] [-pF PASSWORDS] [-uF USERS]
      |_.__/|_|   \__,_|\__\___|_|\_\_|  \__,_|\__, |
             OpenSSH Brute force tool 0.3.1     __/ |
           (c) Copyright 2014 Jorge Matricali  |___/
-          
+
 
 optional arguments:
   -h, --help            show this help message and exit
