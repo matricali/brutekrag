@@ -8,8 +8,8 @@ setup(
     author='Jorge Matricali',
     author_email='jorgematricali@gmail.com',
     license='MIT',
-    url='https://github.com/jorge-matricali/brutekrag',
-    download_url='https://github.com/jorge-matricali/brutekrag/archive/v0.3.1.tar.gz',
+    url='https://github.com/matricali/brutekrag',
+    download_url='https://github.com/matricali/brutekrag/archive/v0.3.1.tar.gz',
     scripts=['bin/brutekrag'],
     keywords=['ssh', 'brute force', 'ethical hacking', 'pentesting', 'dictionary attack', 'penetration test'],
     classifiers=(
