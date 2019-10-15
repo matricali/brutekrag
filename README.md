@@ -11,9 +11,9 @@ Penetration tests on SSH servers using brute force or dictionary attacks. Writte
 >brutekrag and its owners can't be held responsible for misuse by users.   
 >Users have to act as permitted by local law rules.
 
-## Requeriments
+## Requirements
 * Python 2.7
-* see [requeriments.txt](requeriments.txt)
+* see [requirements.txt](requirements.txt)
 
 ## Installation
 It can be easily installed using _pip_
